@@ -27,6 +27,8 @@ public class MySqlSourceExample {
         env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 .print();
 
+
+
         env.execute("flink-cdc demo");
     }
 }
