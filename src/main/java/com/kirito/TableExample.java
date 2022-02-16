@@ -1,21 +1,27 @@
 package com.kirito;
 
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import static org.apache.flink.table.api.Expressions.$;
 
 public class TableExample {
 
 
-    public static void main(String[] args) {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .inStreamingMode()
-                .build();
+    public static void main(String[] args) throws Exception {
+//        EnvironmentSettings settings = EnvironmentSettings
+//                .newInstance()
+//                .inStreamingMode()
+//                .build();
+//
+//        TableEnvironment tableEnv = TableEnvironment.create(settings);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.enableCheckpointing(3000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
 
-        TableEnvironment tableEnv = TableEnvironment.create(settings);
         tableEnv.executeSql("CREATE TEMPORARY table orders (\n" +
                 "   order_id INT,\n" +
                 "   order_date TIMESTAMP(0),\n" +
@@ -34,8 +40,7 @@ public class TableExample {
                 "   'table-name' = 'orders'\n" +
                 " )");
         final Table orders = tableEnv.from("orders");
-        final Table counts = orders.groupBy($("order_id"))
-                .select($("order_id"), $("order_id").count().as("数量"));
-        counts.execute().print();
+        orders.select($("*")).execute().print();
+        env.execute();
     }
 }
