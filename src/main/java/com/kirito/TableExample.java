@@ -1,12 +1,11 @@
 package com.kirito;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import static org.apache.flink.table.api.Expressions.$;
+import org.apache.flink.types.Row;
+import org.apache.flink.util.CloseableIterator;
 
 public class TableExample {
 
@@ -39,8 +38,15 @@ public class TableExample {
                 "   'database-name' = 'flink_demo',\n" +
                 "   'table-name' = 'orders'\n" +
                 " )");
-        final Table orders = tableEnv.from("orders");
-        orders.select($("*")).execute().print();
+        Table table = tableEnv.sqlQuery("select * from orders");
+        TableResult execute = table.execute();
+        CloseableIterator<Row> collect = execute.collect();
+        collect.forEachRemaining(it -> {
+            for (String fieldName : it.getFieldNames(true)) {
+                System.out.print(fieldName + " -> " + it.getField(fieldName) + "  ");
+            }
+            System.out.println();
+        });
         env.execute();
     }
 }
