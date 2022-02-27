@@ -15,7 +15,7 @@ public class Mysql2KafkaExample {
                 .hostname("119.45.20.168")
                 .port(3306)
                 .databaseList("flink_demo") // set captured database
-                .tableList("flink_demo.products") // set captured table
+//                .tableList("flink_demo.products") // set captured table
                 .username("root")
                 .password("kirito1993~!@#")
                 .deserializer(new JsonDebeziumDeserializationSchema()) // converts SourceRecord to JSON String
@@ -24,6 +24,7 @@ public class Mysql2KafkaExample {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment().enableCheckpointing(30000);
         DataStreamSource<String> mySQLSource = env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQLSource");
+        mySQLSource.print();
         FlinkKafkaProducer<String> myProducer = new FlinkKafkaProducer<>(
                 "119.45.20.168:9092",
                 "quickstart-events",
